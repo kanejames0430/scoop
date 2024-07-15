@@ -33,16 +33,7 @@ def getArticleData(url):
     # Join all the paragraphs into a single string
     full_text = '\n'.join(article_text)
 
-    # Extract the publication date
-    # This part will vary depending on the website's structure
-    # Here we assume the date is within a <time> tag or a <meta> tag with a specific property
-
-    tempList = response.text.split('\n')
-    for line in tempList:
-        if "<title>" in line:
-            date = getDate(line) 
-
-    return date, full_text
+    return full_text
 
 def wordProcessor(text):
     ''' 
@@ -78,47 +69,6 @@ def wordProcessor(text):
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
 
     return ' '.join(tokens)
-
-def urlExtractor(url):
-    ''' 
-    Returns a list of hyperlinks on a given page. The returned string lack the prefix neeeded
-    to be a complete URL
-    '''
-    response = requests.get(url)
-    
-    # If successful response, parse the text and find the hyperlinks. 
-    # If no valid response, display status code.
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find_all('a')
-        
-        # Extract the href attributes
-        urls = [link.get('href') for link in links if link.get('href')]
-        
-        return urls
-    else:
-        print("Failed to retrieve the webpage. Status code:", response.status_code)
-        return []
-
-def getDate(text):
-    ''' 
-    Returns the date extract from a given string. This is hard coded and works
-    specifically for urls of the format:
-    
-    https://www.debates.org/voter-education/debate-transcripts/september-29-2020-debate-transcript/
-    
-    where the date is embedded into the url and is in the form month-DD-YYYY
-    '''
-    # Define regex pattern for numbers and months
-    pattern = r'\b(January|February|March|April|May|June|July|August|September|October|November|December|\d+)\b'
-    
-    # find matches
-    matches = re.findall(pattern, text, re.IGNORECASE)
-    
-    # join all the matches together
-    result = ' '.join(matches)
-
-    return result
 
 def sentiment_by_word(text):
     ''' 
