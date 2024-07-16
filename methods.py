@@ -10,6 +10,7 @@ from nltk.stem import WordNetLemmatizer
 from datetime import datetime
 from textblob import TextBlob
 import spacy
+import datetime
 
 nlp = spacy.load('en_core_web_trf')
 
@@ -106,29 +107,6 @@ def overall_sentiment(text):
     scores = [sum(sentiment_by_word(text))/len(sentiment_by_word(text)), sum(sentiment_by_sentence(text))/len(sentiment_by_sentence(text))]
     return scores
 
-def formatDate(date):
-
-    months = {
-    'January': '01',
-    'February': '02',
-    'March': '03',
-    'April': '04',
-    'May': '05',
-    'June': '06',
-    'July': '07',
-    'August': '08',
-    'September': '09',
-    'October': '10',
-    'November': '11',
-    'December': '12'}
-
-    month,day,year = date.split(' ')
-    
-    if months.get(month):
-        return year + '-' + months.get(month) + '-' + day
-    else:
-        print("invalid date")
-
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
@@ -154,3 +132,37 @@ def display_topics(model, feature_names, no_top_words):
     for topic_idx, topic in enumerate(model.components_):
         print(f"Topic {topic_idx}:")
         print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
+
+def verifyDate(date_string):
+    date_pattern = re.compile(r"^(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}$")
+    return bool(date_pattern.match(date_string))
+
+def formatDate(date_string):
+    month_dict = {
+        "January": "01" or "1",
+        "February": "02" or "2",
+        "March": "03" or "3",
+        "April": "04" or "4",
+        "May": "05" or "5",
+        "June": "06" or "6",
+        "July": "07" or "7",
+        "August": "08" or "8",
+        "September": "09" or "9",
+        "October": "10",
+        "November": "11",
+        "December": "12"
+    }
+    day, year = date_string.split()[1:]
+    day = day.replace(",", "")  # Remove the comma from the day
+    day = int(day)
+    month = month_dict[date_string.split()[0]]
+    return datetime.datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d").strftime("%Y-%m-%d")
+
+
+
+def verifyDate(date_string):
+    date_pattern = re.compile(r"^(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}$")
+    return bool(date_pattern.match(date_string))
+
+def merge_dicts(dict1, dict2):
+    return {**dict1, **dict2}
