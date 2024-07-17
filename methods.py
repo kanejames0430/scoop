@@ -12,6 +12,7 @@ from textblob import TextBlob
 import spacy
 import datetime
 
+stop_words = set(stopwords.words('english'))
 nlp = spacy.load('en_core_web_trf')
 
 def getArticleData(url):
@@ -102,7 +103,7 @@ def sentiment_by_sentence(text):
 
 def overall_sentiment(text):
     ''' 
-    Returns the overall sentiment of a given string
+    Returns the overall sentiment of a given string using the sentiment_by_word and _by_sentence methods
     '''
     scores = [sum(sentiment_by_word(text))/len(sentiment_by_word(text)), sum(sentiment_by_sentence(text))/len(sentiment_by_sentence(text))]
     return scores
@@ -129,15 +130,24 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         print()
 
 def display_topics(model, feature_names, no_top_words):
+    ''' 
+    Prints to console the potential topics of a given article
+    '''
     for topic_idx, topic in enumerate(model.components_):
         print(f"Topic {topic_idx}:")
         print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
 
 def verifyDate(date_string):
+    ''' 
+    Method to determine whether or not a string is a date. If it is of the format Month DD, YYYY, return true.
+    '''
     date_pattern = re.compile(r"^(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}$")
     return bool(date_pattern.match(date_string))
 
 def formatDate(date_string):
+    ''' 
+    Formats a string of the format Month DD, YYYY to YYYY-MM-DD. should only be called after verifyDate().
+    '''
     month_dict = {
         "January": "01" or "1",
         "February": "02" or "2",
@@ -158,11 +168,8 @@ def formatDate(date_string):
     month = month_dict[date_string.split()[0]]
     return datetime.datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d").strftime("%Y-%m-%d")
 
-
-
-def verifyDate(date_string):
-    date_pattern = re.compile(r"^(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}$")
-    return bool(date_pattern.match(date_string))
-
 def merge_dicts(dict1, dict2):
+    ''' 
+    Returns a merged dictionary assuming that the keys of both dictionaries are all unique to each other.
+    '''
     return {**dict1, **dict2}
